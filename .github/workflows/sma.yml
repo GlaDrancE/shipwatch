@@ -1,0 +1,75 @@
+name: sma
+
+# Watch the APIs ShipWatch depends on. Anything breaking that this repo actually
+# calls gets patched on a branch and opened as a PR for review, never merged.
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    env:
+      # The live courier API. Set it under Settings → Secrets and variables → Actions → Variables.
+      PARCELPOST_URL: ${{ vars.PARCELPOST_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - run: npm ci
+
+      # The repair step shells out to headless Claude Code.
+      - run: npm install -g @anthropic-ai/claude-code
+
+      - name: Configure git
+        run: |
+          git config user.name  "sma[bot]"
+          git config user.email "sma@users.noreply.github.com"
+
+      # Render's free tier sleeps; the first request can take ~50s.
+      - name: Wake the courier API
+        run: curl -sf --retry 5 --retry-all-errors --max-time 90 "$PARCELPOST_URL/" || true
+
+      - name: Check specs, map impact, open a PR
+        id: sma
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set +e
+          npx sma run --fix
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sma-report
+          path: .sma/report.html
+          if-no-files-found: ignore
+
+      # sma commits the new baseline itself before branching; this pushes it, so the
+      # same change is not re-detected (and re-PR'd) every hour.
+      - name: Push the new baseline
+        run: |
+          git add .sma/specs
+          git diff --cached --quiet || git commit -m "chore(sma): update spec baseline"
+          git push origin HEAD:${{ github.ref_name }} || echo "nothing to push"
+
+      # Exit 1: an API broke us (see the PR). Exit 2: sma itself failed.
+      - name: Report result
+        run: |
+          case "${{ steps.sma.outputs.code }}" in
+            0) echo "nothing broken" ;;
+            1) echo "::error::a breaking API change reaches ShipWatch — see the PR / report" ;;
+            *) echo "::error::sma itself failed (exit ${{ steps.sma.outputs.code }}) — see the step log" ;;
+          esac
+          exit ${{ steps.sma.outputs.code || 2 }}

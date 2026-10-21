@@ -8,3 +8,4 @@ node_modules
 .sma/pr/
 .sma/runs.json
 .sma/inventory.json
+.sma/report.html
