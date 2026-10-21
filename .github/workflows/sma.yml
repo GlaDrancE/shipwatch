@@ -44,7 +44,7 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           # Needed only when the key isn't scoped to a workspace (Anthropic answers 400 otherwise).
-          ANTHROPIC_CUSTOM_HEADERS: ${{ vars.ANTHROPIC_WORKSPACE_ID && format('anthropic-workspace-id: {0}', vars.ANTHROPIC_WORKSPACE_ID) || '' }}
+          ANTHROPIC_CUSTOM_HEADERS: "${{ vars.ANTHROPIC_WORKSPACE_ID && format('anthropic-workspace-id: {0}', vars.ANTHROPIC_WORKSPACE_ID) || '' }}"
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set +e
