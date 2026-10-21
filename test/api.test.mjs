@@ -19,7 +19,7 @@ test('describe shows when a shipment arrives', async () => {
 });
 
 test('createShipment books a parcel', async () => {
-  const s = await createShipment('Alan Turing', 'Boston, MA', 'PLACEHOLDER_SENDER_ID');
+  const s = await createShipment('Alan Turing', 'Boston, MA');
   assert.match(s.trackingId, /^PP\d+$/);
   assert.equal(describe(s).arriving, 'Arriving 2026-11-01');
 });

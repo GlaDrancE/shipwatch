@@ -8,7 +8,7 @@ async function json(res) {
 }
 
 export async function listShipments(limit = 5) {
-  const res = await fetch(`${BASE}/shipments?pageSize=${limit}`);
+  const res = await fetch(`${BASE}/shipments?limit=${limit}`);
   return json(res);
 }
 
@@ -17,11 +17,11 @@ export async function getShipment(trackingId) {
   return json(res);
 }
 
-export async function createShipment(recipient, city, senderId) {
+export async function createShipment(recipient, city) {
   const res = await fetch(`${BASE}/shipments`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ recipient, city, senderId }),
+    body: JSON.stringify({ recipient, city }),
   });
   return json(res);
 }
