@@ -12,6 +12,6 @@
     "test": "node --test"
   },
   "devDependencies": {
-    "self-maintaining-api": "github:GlaDrancE/self-maintaining-api#v1.1.0"
+    "self-maintaining-api": "github:GlaDrancE/self-maintaining-api#v1.1.1"
   }
 }
