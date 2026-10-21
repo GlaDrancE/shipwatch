@@ -1,0 +1,14 @@
+# self-maintaining-api: the APIs ShipWatch depends on. `npx sma run` checks them.
+repo: .
+test: npm test
+
+apis:
+  # The courier. We don't own it (in the story); it can ship a breaking release any day.
+  - name: parcelpost
+    spec: http://localhost:8790/openapi.json
+    baseUrl: http://localhost:8790
+
+  # US National Weather Service: a real public API with a published OpenAPI spec.
+  - name: weather-gov
+    spec: https://api.weather.gov/openapi.json
+    baseUrl: https://api.weather.gov

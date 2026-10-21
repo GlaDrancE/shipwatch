@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ShipWatch</title>
+<style>
+  :root { --bg: #f6f5f1; --card: #fff; --ink: #1b1d1f; --muted: #6b6f74; --line: #e3e1da; --accent: #0f6e5a; --bad: #b3261e; --bad-bg: #fdecea; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #141617; --card: #1d2022; --ink: #ecebe7; --muted: #9a9ea3; --line: #2c3033; --accent: #4cc3a4; --bad: #ffb4ab; --bad-bg: #3a1c1a; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 40px 16px 64px; }
+  h1 { font-size: 28px; margin: 0; letter-spacing: -0.02em; }
+  h1 span { color: var(--accent); }
+  .sub { color: var(--muted); margin: 4px 0 28px; }
+  form { display: flex; gap: 8px; }
+  input { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); font: inherit; }
+  button { padding: 12px 18px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; font: inherit; font-weight: 600; cursor: pointer; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; margin-top: 16px; }
+  .status { font-size: 22px; font-weight: 650; }
+  .arriving { font-size: 18px; margin: 2px 0 10px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  .weather { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line); }
+  ol { padding-left: 18px; margin: 12px 0 0; }
+  .error { background: var(--bad-bg); color: var(--bad); border-color: transparent; font-family: ui-monospace, monospace; font-size: 14px; }
+  h2 { font-size: 15px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); margin: 36px 0 0; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .row:last-child { border-bottom: 0; }
+  .row b { font-family: ui-monospace, monospace; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Ship<span>Watch</span></h1>
+  <p class="sub">Track any ParcelPost parcel, with the weather where it's headed.</p>
+
+  <form id="f">
+    <input id="id" placeholder="Tracking number, e.g. PP1001" value="PP1001" aria-label="Tracking number" autocomplete="off">
+    <button>Track</button>
+  </form>
+  <div id="result"></div>
+
+  <h2>Recent shipments</h2>
+  <div id="list" class="card"><span class="muted">Loading…</span></div>
+</main>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+  async function get(url) {
+    const res = await fetch(url);
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error);
+    return body;
+  }
+
+  async function track(id) {
+    $('result').innerHTML = '<div class="card muted">Looking it up…</div>';
+    try {
+      const s = await get(`/api/track/${encodeURIComponent(id)}`);
+      $('result').innerHTML = `<div class="card">
+        <div class="muted">${esc(s.trackingId)}</div>
+        <div class="status">${esc(s.status)}</div>
+        <div class="arriving">${esc(s.arriving)}</div>
+        <div class="muted">To ${esc(s.to)}</div>
+        <ol>${s.events.map((e) => `<li>${esc(e.note)} <span class="muted">${new Date(e.at).toLocaleString()}</span></li>`).join('')}</ol>
+        <div class="weather">${s.weather ? `At the destination now: <b>${esc(s.weather.summary)}, ${esc(s.weather.temperature)}</b>` : '<span class="muted">No forecast available.</span>'}</div>
+      </div>`;
+    } catch (e) {
+      $('result').innerHTML = `<div class="card error">${esc(e.message)}</div>`;
+    }
+  }
+
+  async function list() {
+    try {
+      const rows = await get('/api/shipments');
+      $('list').innerHTML = rows.map((s) => `<div class="row" data-id="${esc(s.trackingId)}">
+        <span><b>${esc(s.trackingId)}</b> · ${esc(s.to)}</span><span class="muted">${esc(s.arriving)}</span></div>`).join('');
+    } catch (e) {
+      $('list').className = 'card error';
+      $('list').textContent = e.message;
+    }
+  }
+
+  $('f').onsubmit = (e) => { e.preventDefault(); track($('id').value.trim()); };
+  $('list').onclick = (e) => { const r = e.target.closest('.row'); if (r) { $('id').value = r.dataset.id; track(r.dataset.id); } };
+  track('PP1001');
+  list();
+</script>
+</body>
+</html>

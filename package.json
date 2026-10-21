@@ -1,0 +1,17 @@
+{
+  "name": "shipwatch",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Parcel tracker that keeps working when its courier API changes, maintained by self-maintaining-api.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "self-maintaining-api": "^1.0.0"
+  }
+}
