@@ -5,8 +5,8 @@ test: npm test
 apis:
   # The courier. We don't own it (in the story); it can ship a breaking release any day.
   - name: parcelpost
-    spec: http://localhost:8790/openapi.json
-    baseUrl: http://localhost:8790
+    spec: https://parcelpost-api.onrender.com/openapi.json
+    baseUrl: https://parcelpost-api.onrender.com
 
   # US National Weather Service: a real public API with a published OpenAPI spec.
   - name: weather-gov

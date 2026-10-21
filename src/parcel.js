@@ -1,5 +1,5 @@
 // ParcelPost courier API: the third party this app depends on.
-export const BASE = process.env.PARCELPOST_URL || 'http://localhost:8790';
+export const BASE = process.env.PARCELPOST_URL || 'https://parcelpost-api.onrender.com';
 
 async function json(res) {
   const body = await res.json();
