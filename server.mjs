@@ -34,8 +34,8 @@ async function handle(req, res) {
     return send(res, 200, (await listShipments(5)).map(describe));
   }
   if (pathname === '/api/shipments' && req.method === 'POST') {
-    const { recipient, city } = await readBody(req);
-    return send(res, 201, describe(await createShipment(recipient, city)));
+    const { recipient, city, senderId = process.env.PARCELPOST_SENDER_ID } = await readBody(req);
+    return send(res, 201, describe(await createShipment(recipient, city, senderId)));
   }
   const m = pathname.match(/^\/api\/track\/([A-Za-z0-9]+)$/);
   if (m) return send(res, 200, await track(m[1]));

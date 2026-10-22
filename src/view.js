@@ -9,7 +9,7 @@ export function describe(shipment) {
   return {
     trackingId: shipment.trackingId,
     status: STATUS[shipment.status] ?? shipment.status,
-    arriving: `Arriving ${shipment.eta}`,
+    arriving: `Arriving ${shipment.estimatedDelivery}`,
     to: `${shipment.recipient}, ${shipment.destination.city}`,
     events: shipment.events,
   };
