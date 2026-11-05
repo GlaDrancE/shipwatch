@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "ParcelPost API",
-    "version": "1.0.0"
+    "version": "2.0.0"
   },
   "components": {
     "schemas": {
@@ -20,7 +20,7 @@
               "delivered"
             ]
           },
-          "eta": {
+          "estimatedDelivery": {
             "type": "string",
             "format": "date"
           },
@@ -69,11 +69,15 @@
           },
           "city": {
             "type": "string"
+          },
+          "senderId": {
+            "type": "string"
           }
         },
         "required": [
           "recipient",
-          "city"
+          "city",
+          "senderId"
         ]
       }
     }
@@ -84,7 +88,7 @@
         "operationId": "listShipments",
         "parameters": [
           {
-            "name": "limit",
+            "name": "pageSize",
             "in": "query",
             "required": false,
             "schema": {
@@ -113,7 +117,7 @@
                           "delivered"
                         ]
                       },
-                      "eta": {
+                      "estimatedDelivery": {
                         "type": "string",
                         "format": "date"
                       },
@@ -174,11 +178,15 @@
                   },
                   "city": {
                     "type": "string"
+                  },
+                  "senderId": {
+                    "type": "string"
                   }
                 },
                 "required": [
                   "recipient",
-                  "city"
+                  "city",
+                  "senderId"
                 ]
               }
             }
@@ -203,7 +211,7 @@
                         "delivered"
                       ]
                     },
-                    "eta": {
+                    "estimatedDelivery": {
                       "type": "string",
                       "format": "date"
                     },
@@ -282,7 +290,7 @@
                         "delivered"
                       ]
                     },
-                    "eta": {
+                    "estimatedDelivery": {
                       "type": "string",
                       "format": "date"
                     },
